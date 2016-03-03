@@ -1,0 +1,210 @@
+<template>
+    <div>
+        <section class="section">
+            <div class="container">
+                <h1 class="title">
+                    Commands
+                </h1>
+                <h2 class="subtitle">
+                    Custom commands for your channel
+                </h2>
+
+                <hr>
+
+                <div class="content is-centered" v-if="!loaded">
+                    Loading...
+                </div>
+
+                <div class="columns" v-if="loaded">
+                    <div class="column is-3">
+                        <nav class="menu">
+                            <p class="menu-heading">
+                                Commands
+                            </p>
+                            <a class="menu-block" href="#" v-for="command in commands" @click="editCommand($key)" :class="{'is-active': selectedCommand == $key}">
+                                <span class="menu-icon">
+                                    <i class="fa fa-chevron-right"></i>
+                                </span>
+                                {{ $key }}
+                            </a>
+                            <div class="menu-block">
+                                <button class="button is-primary is-outlined is-fullwidth" @click="addCommand">
+                                    Add command
+                                </button>
+                            </div>
+                        </nav>
+                    </div>
+                    <div class="column is-9" v-show="success">
+                        <div class="notification is-success">
+                            The changes have been saved!
+                        </div>
+                    </div>
+                    <div class="column is-9" v-show="selectedCommand || adding" transition="fade">
+                        <div class="notification is-danger" v-if="error">
+                            {{ error }}
+                        </div>
+
+                        <p class="control is-grouped">
+                            <span class="button is-disabled">!</span>
+                            <input class="input" type="text" placeholder="Command" v-model="tmpCommandKey" required>
+                        </p>
+                        <p class="control">
+                            <textarea class="textarea" placeholder="Textarea" v-model="tmpCommand.value"></textarea>
+                        </p>
+                        <p class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" v-model="tmpCommand.me">
+                                Run as /me
+                            </label>
+                        </p>
+                        <p class="control">
+                            <label class="checkbox">
+                                <input type="checkbox" v-model="tmpCommand.mod">
+                                Mod only
+                            </label>
+                        </p>
+                        <div class="control is-clearfix">
+                            <div class="is-pulled-left">
+                                <button class="button is-primary" @click="saveCommand" :class="{'is-loading': saving}">
+                                    {{ adding ? 'Create' : 'Save' }}
+                                </button>
+                                <button class="button" @click="cancelEdit()">Cancel</button>
+                            </div>
+
+                            <div class="is-pulled-right" v-if="!adding" @click="deleteCommand">
+                                <button class="button is-danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>
+
+<script>
+import commandService from '../services/command.js'
+
+export default {
+    route: {
+        data ({to, next}) {
+            commandService.get((err, data) => {
+                if (err) {
+                    // we're not really handling this right now (^:
+                }
+                next({
+                    loaded: true,
+                    commands: data
+                })
+            })
+        }
+    },
+    data () {
+        return {
+            loaded: false,
+            saving: false,
+            adding: false,
+            success: false,
+            error: null,
+            commands: [],
+            selectedCommand: null,
+            tmpCommandKey: '',
+            tmpCommand: {}
+        }
+    },
+    methods: {
+        addCommand: function () {
+            this.error = null
+            this.selectedCommand = null
+            this.tmpCommand = {}
+            this.tmpCommandKey = ''
+            this.adding = true
+            this.success = false
+        },
+        editCommand: function (key) {
+            this.error = null
+            this.selectedCommand = key
+            this.tmpCommand = this.commands[key]
+            this.tmpCommandKey = key
+            this.adding = false
+            this.success = false
+        },
+        cancelEdit: function () {
+            this.error = null
+            this.selectedCommand = null
+            this.tmpCommand = {}
+            this.tmpCommandKey = ''
+            this.adding = false
+            this.success = false
+        },
+        saveCommand: function () {
+            let data = {
+                adding: this.adding,
+                command: this.tmpCommandKey,
+                originalCommand: this.selectedCommand,
+                data: this.tmpCommand
+            }
+
+            this.success = false
+            this.error = null
+            this.saving = true
+            this.$http.post('/api/commands/save', data).then(function (response) {
+                this.saving = false
+                this.adding = false
+                this.success = true
+                this.selectedCommand = null
+                this.tmpCommandKey = ''
+                this.tmpCommand = {}
+
+                this.getCommandList()
+            }, function (response) {
+                this.saving = false
+                this.error = response.data.message
+            })
+        },
+        deleteCommand: function () {
+            let data = {
+                command: this.selectedCommand
+            }
+
+            this.$http.post('/api/commands/delete', data).then(function (response) {
+                this.saving = false
+                this.adding = false
+                this.selectedCommand = null
+                this.tmpCommandKey = ''
+                this.tmpCommand = {}
+
+                if ('error' in response && response.error) {
+                    this.error = response.data.message
+                    return
+                }
+
+                this.getCommandList()
+            }, function () {
+                this.saving = false
+                // this.error = response.data.message
+            })
+        },
+        getCommandList: function () {
+            commandService.get((err, data) => {
+                if (err) {
+                    // we're not really handling this right now (^:
+                }
+                this.loaded = true
+                this.commands = data
+            })
+        }
+    }
+}
+</script>
+
+<style>
+.menu-block {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.menu-block.is-active {
+    background: #f5f7fa;
+}
+</style>
