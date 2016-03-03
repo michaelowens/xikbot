@@ -94,7 +94,9 @@ class Web {
             store: new RedisStore({
                 client: Database.client
             }),
-            secret: Settings.web.session.secret
+            secret: Settings.web.session.secret,
+            resave: false,
+            saveUninitialized: false
         }))
         this.app.use(passport.initialize())
         this.app.use(passport.session())
