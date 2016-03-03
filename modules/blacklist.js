@@ -11,6 +11,7 @@ export default class BlacklistModule extends BaseModule {
     constructor () {
         super()
 
+        this.title = 'Blacklist'
         this.events = {
             'message': this.onMessage
         }

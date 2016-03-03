@@ -7,26 +7,27 @@ import {RateLimiter} from 'limiter'
 import seedrandom from 'seedrandom'
 import {ModuleSetting} from '../models/module'
 
-export const SETTINGS = {
-    'emote': new ModuleSetting({
-        label: 'The emote to use',
-        default: '<3',
-        placeholder: '<3',
-        constraint: {
-            minLength: 1
-        }
-    })
-}
-
 export default class LoveModule extends BaseModule {
     constructor () {
         super()
 
+        this.title = 'Love'
         this.limiter = new RateLimiter(2, 30000)
 
         this.commands['love'] = Commands.rawCommand(this, this.love, {
             description: 'Calculate the love between 2 people'
         })
+
+        this.settings = {
+            'emote': new ModuleSetting({
+                label: 'The emote to use',
+                default: '<3',
+                placeholder: '<3',
+                constraint: {
+                    minLength: 1
+                }
+            })
+        }
     }
 
     love (message) {
@@ -55,6 +56,6 @@ export default class LoveModule extends BaseModule {
         let date = new Date().toJSON().slice(0, 10),
             love = Math.floor(seedrandom(`${message.channel.name} ${user_from} ${user_to} ${date}`.toLowerCase())() * 100)
 
-        Chat.say(message.channel.name, `There's ${love}% ${SETTINGS.emote.value} between ${message.user.displayName} and ${user_to}`)
+        Chat.say(message.channel.name, `There's ${love}% ${this.settings.emote.value} between ${message.user.displayName} and ${user_to}`)
     }
 }

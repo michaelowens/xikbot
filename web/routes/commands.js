@@ -1,4 +1,5 @@
 import Database from '../../models/database'
+import Log from '../../models/log'
 
 export default {
     root (req, res) {
@@ -29,7 +30,7 @@ export default {
     },
 
     save (req, res) {
-        if (!req.body.command || !req.body.data || !req.body.data.value) {
+        if (!req.body.command || !req.body.data) {
             res.status(500)
             return res.json({
                 error: true,
@@ -38,9 +39,17 @@ export default {
         }
 
         var data = {
-            value: req.body.data.value,
             mod: req.body.data.mod === true,
             me: req.body.data.me === true
+        }
+
+        if (req.body.data.value) {
+            data.value = req.body.data.value
+        }
+
+        if (req.body.data.module) {
+            data.module = req.body.data.module
+            data.command = req.body.data.command
         }
 
         var commandsKey = 'commands_' + req.user.username

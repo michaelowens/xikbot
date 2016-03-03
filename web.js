@@ -13,6 +13,7 @@ import Log from './models/log'
 import authRoutes from './web/routes/auth'
 import commandsRoutes from './web/routes/commands'
 import timersRoutes from './web/routes/timers'
+import modulesRoutes from './web/routes/modules'
 
 // Can't do this via import in 1 go :-(
 let RedisStore = require('connect-redis')(session),
@@ -132,6 +133,8 @@ class Web {
 
         this.app.post('/api/join', ensureAuthenticated, handleJoinApi('join'))
         this.app.post('/api/leave', ensureAuthenticated, handleJoinApi('leave'))
+
+        this.app.get('/api/modules', ensureAuthenticated, modulesRoutes.root)
 
         function handleJoinApi(method) {
             return function (req, res) {

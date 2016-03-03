@@ -110,8 +110,9 @@ export default {
                 if (err) {
                     // we're not really handling this right now (^:
                 }
+
+                this.timers = data
                 if (++loaded === 2) {
-                    this.timers = data
                     next({
                         loaded: true
                     })
@@ -122,6 +123,7 @@ export default {
                 if (err) {
                     // we're not really handling this right now (^:
                 }
+
                 this.config = $.extend({}, this.config, data)
                 if (++loaded === 2) {
                     next({

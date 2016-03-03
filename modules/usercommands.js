@@ -9,6 +9,7 @@ export default class UsercommandsModule extends BaseModule {
     constructor () {
         super()
 
+        this.title = 'User Commands'
         this.global = true
         this.events = {
             'message': this.onMessage

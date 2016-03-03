@@ -4,9 +4,11 @@ import Cache from '../models/cache'
 
 export default class BaseModule {
     constructor () {
+        this.title = ''
         this.global = false
         this.enabled = false
         this.commands = {}
+        this.settings = {}
         this.wrappedEvents = {}
         this.events = {}
     }

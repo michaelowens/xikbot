@@ -55,9 +55,10 @@
                             <div class="column is-3">
                                 <p class="control is-grouped">
                                     <span class="select is-fullwidth">
-                                        <select v-model="commandModule" class="is-fullwidth">
-                                            <option v-for="option in modules" v-bind:value="option.value">
-                                                {{ option.name }}
+                                        <select v-model="tmpCommand.module" class="is-fullwidth">
+                                            <option value="plaintext">Plain text</option>
+                                            <option v-for="option in modules" :value="option.name" v-if="shouldShowModule(option)">
+                                                {{ option.title }}
                                             </option>
                                         </select>
                                     </span>
@@ -65,8 +66,18 @@
                             </div>
                         </div>
 
-                        <p class="control" v-if="commandModule == 'plaintext'">
+                        <p class="control" v-if="tmpCommand.module == 'plaintext'">
                             <textarea class="textarea" placeholder="Textarea" v-model="tmpCommand.value"></textarea>
+                        </p>
+                        <p class="control" v-else>
+                            <label class="label">Command</label>
+                            <span class="select">
+                                <select v-model="tmpCommand.command">
+                                    <option v-for="command in getModule(tmpCommand.module).commands" :value="command.name">
+                                        {{ $key }} - {{ command.options.description }}
+                                    </option>
+                                </select>
+                            </span>
                         </p>
 
                         <p class="control">
@@ -103,18 +114,37 @@
 
 <script>
 import commandService from '../services/command.js'
+import moduleService from '../services/module.js'
 
 export default {
     route: {
         data ({to, next}) {
+            let loaded = 0
+
             commandService.get((err, data) => {
                 if (err) {
                     // we're not really handling this right now (^:
                 }
-                next({
-                    loaded: true,
-                    commands: data
-                })
+
+                this.commands = data
+                if (++loaded === 2) {
+                    next({
+                        loaded: true
+                    })
+                }
+            })
+
+            moduleService.get((err, data) => {
+                if (err) {
+                    // we're not really handling this right now (^:
+                }
+
+                this.modules = data
+                if (++loaded === 2) {
+                    next({
+                        loaded: true
+                    })
+                }
             })
         }
     },
@@ -129,15 +159,11 @@ export default {
             selectedCommand: null,
             tmpCommandKey: '',
             tmpCommand: {},
-            commandModule: 'plaintext',
-            modules: [
-                {value: 'plaintext', name: 'Plain text'},
-                {value: 'love', name: 'Love'}
-            ]
+            modules: []
         }
     },
     methods: {
-        addCommand: function () {
+        addCommand () {
             this.error = null
             this.selectedCommand = null
             this.tmpCommand = {}
@@ -145,7 +171,7 @@ export default {
             this.adding = true
             this.success = false
         },
-        editCommand: function (key) {
+        editCommand (key) {
             this.error = null
             this.selectedCommand = key
             this.tmpCommand = this.commands[key]
@@ -153,7 +179,7 @@ export default {
             this.adding = false
             this.success = false
         },
-        cancelEdit: function () {
+        cancelEdit () {
             this.error = null
             this.selectedCommand = null
             this.tmpCommand = {}
@@ -161,7 +187,7 @@ export default {
             this.adding = false
             this.success = false
         },
-        saveCommand: function () {
+        saveCommand () {
             let data = {
                 adding: this.adding,
                 command: this.tmpCommandKey,
@@ -186,7 +212,7 @@ export default {
                 this.error = response.data.message
             })
         },
-        deleteCommand: function () {
+        deleteCommand () {
             let data = {
                 command: this.selectedCommand
             }
@@ -209,7 +235,7 @@ export default {
                 // this.error = response.data.message
             })
         },
-        getCommandList: function () {
+        getCommandList () {
             commandService.get((err, data) => {
                 if (err) {
                     // we're not really handling this right now (^:
@@ -217,6 +243,12 @@ export default {
                 this.loaded = true
                 this.commands = data
             })
+        },
+        getModule (name) {
+            return this.modules.find(module => module.name === name)
+        },
+        shouldShowModule (module) {
+            return module.enabled == true && module.isEnabledForChannel == true && !$.isEmptyObject(module.commands)
         }
     }
 }
