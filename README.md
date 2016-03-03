@@ -15,12 +15,12 @@ gulp build
 gulp watch
 
 # run both bot & web interface
-node index.js both
+nodemon index.js both
 
 # run bot only
-node index.js bot
+nodemon index.js bot
 
 # run web only
-node index.js web
+nodemon index.js web
 
 ```
