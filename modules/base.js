@@ -6,7 +6,7 @@ export default class BaseModule {
     constructor () {
         this.global = false
         this.enabled = false
-        this.commands = null
+        this.commands = {}
         this.wrappedEvents = {}
         this.events = {}
     }
@@ -56,8 +56,8 @@ export default class BaseModule {
         }
         this.wrappedEvents = true
 
-        if (this.commands) {
-            this.commands.enable()
+        for (var command in this.commands) {
+            this.commands[command].enable(command)
         }
 
         this.enabled = true
@@ -68,8 +68,8 @@ export default class BaseModule {
             EventManager.removeListener(event, this.events[event])
         }
 
-        if (this.commands) {
-            this.commands.disable()
+        for (var command in this.commands) {
+            this.commands[command].disable(command)
         }
 
         this.enabled = false

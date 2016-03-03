@@ -44,13 +44,31 @@
                             {{ error }}
                         </div>
 
-                        <p class="control is-grouped">
-                            <span class="button is-disabled">!</span>
-                            <input class="input" type="text" placeholder="Command" v-model="tmpCommandKey" required>
-                        </p>
-                        <p class="control">
+                        <div class="columns no-margin-bottom">
+                            <div class="column is-9">
+                                <p class="control is-grouped">
+                                    <span class="button is-disabled">!</span>
+                                    <input class="input" type="text" placeholder="Command" v-model="tmpCommandKey" required>
+                                </p>
+                            </div>
+
+                            <div class="column is-3">
+                                <p class="control is-grouped">
+                                    <span class="select is-fullwidth">
+                                        <select v-model="commandModule" class="is-fullwidth">
+                                            <option v-for="option in modules" v-bind:value="option.value">
+                                                {{ option.name }}
+                                            </option>
+                                        </select>
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="control" v-if="commandModule == 'plaintext'">
                             <textarea class="textarea" placeholder="Textarea" v-model="tmpCommand.value"></textarea>
                         </p>
+
                         <p class="control">
                             <label class="checkbox">
                                 <input type="checkbox" v-model="tmpCommand.me">
@@ -63,6 +81,7 @@
                                 Mod only
                             </label>
                         </p>
+
                         <div class="control is-clearfix">
                             <div class="is-pulled-left">
                                 <button class="button is-primary" @click="saveCommand" :class="{'is-loading': saving}">
@@ -109,7 +128,12 @@ export default {
             commands: [],
             selectedCommand: null,
             tmpCommandKey: '',
-            tmpCommand: {}
+            tmpCommand: {},
+            commandModule: 'plaintext',
+            modules: [
+                {value: 'plaintext', name: 'Plain text'},
+                {value: 'love', name: 'Love'}
+            ]
         }
     },
     methods: {
@@ -206,5 +230,9 @@ export default {
 
 .menu-block.is-active {
     background: #f5f7fa;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0;
 }
 </style>

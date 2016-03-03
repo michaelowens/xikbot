@@ -24,8 +24,7 @@ export default class LoveModule extends BaseModule {
 
         this.limiter = new RateLimiter(2, 30000)
 
-        this.commands = Commands.rawCommand(this, this.love, {
-            command: 'love',
+        this.commands['love'] = Commands.rawCommand(this, this.love, {
             description: 'Calculate the love between 2 people'
         })
     }

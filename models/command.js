@@ -22,6 +22,7 @@ export class Command {
         this.scope = scope
         this.handler = this.handleCommand.bind(this)
         this.callback = callback.bind(scope)
+        this.name = null
     }
 
     handleCommand (data) {
@@ -42,12 +43,13 @@ export class Command {
         }
     }
 
-    enable () {
-        EventManager.on('command:' + this.options.command, this.handler)
+    enable (name) {
+        this.name = name
+        EventManager.on('command:' + this.name, this.handler)
     }
 
     disable () {
-        EventManager.removeListener('command:' + this.options.command, this.handler)
+        EventManager.removeListener('command:' + this.name, this.handler)
     }
 }
 
@@ -60,6 +62,7 @@ export class MultiCommand {
         this.options = options
         this.scope = scope
         this.handler = this.handleCommand.bind(this)
+        this.name = null
     }
 
     handleCommand (data) {
@@ -100,12 +103,13 @@ export class MultiCommand {
         }
     }
 
-    enable () {
-        EventManager.on('command:' + this.options.command, this.handler)
+    enable (name) {
+        this.name = name
+        EventManager.on('command:' + this.name, this.handler)
     }
 
     disable () {
-        EventManager.removeListener('command:' + this.options.command, this.handler)
+        EventManager.removeListener('command:' + this.name, this.handler)
     }
 }
 

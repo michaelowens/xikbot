@@ -21,6 +21,10 @@ class ModuleManager {
     }
 
     get (moduleName) {
+        if (!moduleName) {
+            return this.modules
+        }
+
         return this.modules.find(module => module.constructor.name === moduleName)
     }
 
