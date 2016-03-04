@@ -55,29 +55,24 @@
                             <div class="column is-3">
                                 <p class="control is-grouped">
                                     <span class="select is-fullwidth">
-                                        <select v-model="tmpCommand.module" class="is-fullwidth">
+                                        <select v-model="tmpCommand.command" class="is-fullwidth">
                                             <option value="plaintext">Plain text</option>
-                                            <option v-for="option in modules" :value="option.name" v-if="shouldShowModule(option)">
-                                                {{ option.title }}
-                                            </option>
+                                            <template v-for="option in modules" v-if="shouldShowModule(option)">
+                                                <option v-for="command in getModule(option.name).commands" :value="option.name + '.' + command.name" >
+                                                    {{ option.name | cleanModuleName }}.{{ command.name }}
+                                                </option>
+                                            </template>
                                         </select>
                                     </span>
                                 </p>
                             </div>
                         </div>
 
-                        <p class="control" v-if="tmpCommand.module == 'plaintext'">
+                        <p class="control" v-if="tmpCommand.command == 'plaintext'">
                             <textarea class="textarea" placeholder="Textarea" v-model="tmpCommand.value"></textarea>
                         </p>
                         <p class="control" v-else>
-                            <label class="label">Command</label>
-                            <span class="select">
-                                <select v-model="tmpCommand.command">
-                                    <option v-for="command in getModule(tmpCommand.module).commands" :value="command.name">
-                                        {{ $key }} - {{ command.options.description }}
-                                    </option>
-                                </select>
-                            </span>
+                            <strong>Description:</strong> {{ getCommand(tmpCommand.command).options.description | json }}
                         </p>
 
                         <p class="control">
@@ -162,11 +157,18 @@ export default {
             modules: []
         }
     },
+    filters: {
+        cleanModuleName (name) {
+            return name.toLowerCase().replace(/module$/, '')
+        }
+    },
     methods: {
         addCommand () {
             this.error = null
             this.selectedCommand = null
-            this.tmpCommand = {}
+            this.tmpCommand = {
+                command: 'plaintext'
+            }
             this.tmpCommandKey = ''
             this.adding = true
             this.success = false
@@ -245,7 +247,12 @@ export default {
             })
         },
         getModule (name) {
-            return this.modules.find(module => module.name === name)
+            var s = name.split('.')
+            return this.modules.find(module => module.name === s[0])
+        },
+        getCommand (name) {
+            var s = name.split('.')
+            return this.modules.find(module => module.name === s[0]).commands[s[1]]
         },
         shouldShowModule (module) {
             return module.enabled == true && module.isEnabledForChannel == true && !$.isEmptyObject(module.commands)

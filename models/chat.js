@@ -199,9 +199,9 @@ class Chat {
 
         EventManager.emit('message', data)
 
-        // if (command) {
-        //     EventManager.emit(`command:${command}`, data)
-        // }
+        if (command) {
+            EventManager.emit(`command:${command}`, data)
+        }
     }
 
     say (channel, message, action = false) {

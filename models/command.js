@@ -45,11 +45,11 @@ export class Command {
 
     enable (name) {
         this.name = name
-        EventManager.on('command:' + this.name, this.handler)
+        EventManager.on(`command:${this.scope.constructor.name}.${this.name}`, this.handler)
     }
 
     disable () {
-        EventManager.removeListener('command:' + this.name, this.handler)
+        EventManager.removeListener(`command:${this.scope.constructor.name}.${this.name}`, this.handler)
     }
 }
 
@@ -105,11 +105,11 @@ export class MultiCommand {
 
     enable (name) {
         this.name = name
-        EventManager.on('command:' + this.name, this.handler)
+        EventManager.on(`command:${this.scope.constructor.name}.${this.name}`, this.handler)
     }
 
     disable () {
-        EventManager.removeListener('command:' + this.name, this.handler)
+        EventManager.removeListener(`command:${this.scope.constructor.name}.${this.name}`, this.handler)
     }
 }
 

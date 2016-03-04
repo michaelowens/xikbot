@@ -5,12 +5,21 @@ import Log from '../models/log'
 import Chat from '../models/chat'
 import EventManager from '../models/event'
 
-export default class UsercommandsModule extends BaseModule {
+export default class CommandsModule extends BaseModule {
     constructor () {
         super()
 
-        this.title = 'User Commands'
+        this.title = 'Commands'
         this.global = true
+
+        this.commands['add'] = Commands.rawCommand(this, this.add, {
+            description: 'Add a command'
+        })
+
+        this.commands['remove'] = Commands.rawCommand(this, this.remove, {
+            description: 'Remove a command'
+        })
+
         this.events = {
             'message': this.onMessage
         }
@@ -56,4 +65,8 @@ export default class UsercommandsModule extends BaseModule {
             }
         }
     }
+
+    add () {}
+
+    remove () {}
 }

@@ -47,8 +47,7 @@ export default {
             data.value = req.body.data.value
         }
 
-        if (req.body.data.module) {
-            data.module = req.body.data.module
+        if (req.body.data.command) {
             data.command = req.body.data.command
         }
 
