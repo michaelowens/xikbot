@@ -45,7 +45,8 @@ export default class WallsModule extends BaseModule {
 
         if (!data.user.isSubscriber() && !data.user.isMod()) {
             if (this.modCount >= this.settings.modWallCount.value || this.subCount >= this.settings.subWallCount.value) {
-                Chat.action(data.channel.name, `Thank you, ${data.user.displayName}, our savior! kanoHype`)
+                wall = (this.modCount >= this.settings.modWallCount.value ? 'mod' : 'sub')
+                Chat.action(data.channel.name, `Thank you, ${data.user.displayName} our savior, for stopping the ${wall} wall! kanoHype`)
             }
             this.modCount = 0
             this.subCount = 0
