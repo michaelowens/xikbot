@@ -43,11 +43,27 @@ export default class WallsModule extends BaseModule {
         let reset = false,
             wall = null
 
-        if (!data.user.isSubscriber() && !data.user.isMod()) {
-            if (this.modCount >= this.settings.modWallCount.value || this.subCount >= this.settings.subWallCount.value) {
-                wall = (this.modCount >= this.settings.modWallCount.value ? 'mod' : 'sub')
-                Chat.action(data.channel.name, `Thank you, ${data.user.displayName} our savior, for stopping the ${wall} wall! kanoHype`)
+        if (this.modCount >= this.settings.modWallCount.value || this.subCount >= this.settings.subWallCount.value) {
+            wall = (this.modCount >= this.settings.modWallCount.value ? 'mod' : 'sub')
+
+            if (wall === 'mod' && !data.user.isMod()) {
+                reset = true
+                this.modCount = 0
             }
+
+            if (wall === 'sub' && !data.user.isSubscriber()) {
+                reset = true
+                this.subCount = 0
+            }
+
+            if (reset) {
+                Chat.action(data.channel.name, `Thank you, ${data.user.displayName} our savior, for stopping the ${wall} wall! kanoHype`)
+                return
+            }
+            wall = null
+        }
+
+        if (!data.user.isSubscriber() && !data.user.isMod()) {
             this.modCount = 0
             this.subCount = 0
             return
