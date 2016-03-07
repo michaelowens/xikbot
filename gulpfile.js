@@ -55,3 +55,5 @@ gulp.task('watch', ['clean'], function () {
     watch = true
     gulp.start('copy', 'webpack')
 })
+
+gulp.task('default', ['build'])
