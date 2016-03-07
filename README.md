@@ -1,4 +1,4 @@
-# xikbot
+# Xikbot
 
 > A highly configurable and extensible Twitch bot written in Node.js.
 

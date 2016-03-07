@@ -30,20 +30,15 @@ export default class CommandsModule extends BaseModule {
             return
         }
 
-        let key = 'commands_' + data.channel.name,
-            last_param = data.params[data.params.length - 1],
+        let last_param = data.params[data.params.length - 1],
             response = '',
             hasMention = false,
             cmd = null
 
-        cmd = await Database.client.hgetAsync(key, data.command)
+        cmd = await Database.client.hgetAsync(`users:${data.channel.name}:commands`, data.command)
         cmd = JSON.parse(cmd)
 
-        if (!cmd) {
-            return
-        }
-
-        if (cmd.mod && (!data.user.isMod() && !data.user.isAdmin())) {
+        if (!cmd || (cmd.mod && (!data.user.isMod() && !data.user.isAdmin()))) {
             return
         }
 
@@ -53,7 +48,8 @@ export default class CommandsModule extends BaseModule {
             data.params.pop()
         }
         
-        if (cmd.command) {
+        // TODO: maybe turn plaintext into an actual module
+        if (cmd.command && cmd.command !== 'plaintext') {
             EventManager.emit(`command:${cmd.command}`, data)
         } else if (cmd.value) {
             response += cmd.value
@@ -66,7 +62,34 @@ export default class CommandsModule extends BaseModule {
         }
     }
 
-    add () {}
+    async add (data) {
+        if (data.params.length < 2) {
+            return
+        }
+
+        data.params[0] = data.params[0].replace(/^!/, '')
+        // TODO: maybe add check for special chars, but for now allow everything
+        // to see how that works out. Let people use whatever they want.
+        
+        let key = `users:${data.channel.name}:commands`,
+            value, cmd, mod, me
+
+        value = await Database.client.hgetAsync(key, data.params[0])
+        cmd = JSON.parse(value)
+
+        if (!cmd) {
+            cmd = {
+                mod: false,
+                me: false
+            }
+        }
+
+        cmd.command = 'plaintext'
+        cmd.value = data.params.slice(1).join(' ')
+
+        Database.client.hset(key, data.params[0], JSON.stringify(cmd))
+        Chat.whisper(data.user.name, 'Command updated! BloodTrail')
+    }
 
     remove () {}
 }

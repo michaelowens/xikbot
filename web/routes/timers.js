@@ -2,7 +2,7 @@ import Database from '../../models/database'
 
 export default {
     root (req, res) {
-        Database.client.lrange('timers_' + req.user.username, 0, -1, function (err, value) {
+        Database.client.lrange(`users:${req.user.username}:timers`, 0, -1, function (err, value) {
             if (err) {
                 return res.json({
                     error: true,
@@ -19,7 +19,7 @@ export default {
     },
 
     getConfig (req, res) {
-        Database.client.get('timerconfig_' + req.user.username, function (err, value) {
+        Database.client.get(`users:${req.user.username}:timerconfig`, function (err, value) {
             if (err) {
                 return res.json({
                     error: true,
@@ -44,7 +44,7 @@ export default {
             })
         }
 
-        const key = 'timerconfig_' + req.user.username
+        const key = `users:${req.user.username}:timerconfig`
         Database.client.get(key, function (err, value) {
             var configValue = {}
 
@@ -88,7 +88,7 @@ export default {
             })
         }
 
-        Database.client.rpush('timers_' + req.user.username, req.body.message, function (err, value) {
+        Database.client.rpush(`users:${req.user.username}:timers`, req.body.message, function (err, value) {
             if (err) {
                 res.status(500)
                 return res.json({
@@ -112,7 +112,7 @@ export default {
             })
         }
 
-        Database.client.lset('timers_' + req.user.username, req.body.index, '<!DELETED!>', function (err, value) {
+        Database.client.lset(`users:${req.user.username}:timers`, req.body.index, '<!DELETED!>', function (err, value) {
             if (err) {
                 res.status(500)
                 return res.json({
@@ -121,7 +121,7 @@ export default {
                 })
             }
 
-            Database.client.lrem('timers_' + req.user.username, 1, '<!DELETED!>', function (err, value) {
+            Database.client.lrem(`users:${req.user.username}:timers`, 1, '<!DELETED!>', function (err, value) {
                 if (err) {
                     res.status(500)
                     return res.json({
@@ -146,7 +146,7 @@ export default {
             })
         }
 
-        Database.client.lset('timers_' + req.user.username, req.body.index, req.body.message, function (err, value) {
+        Database.client.lset(`users:${req.user.username}:timers`, req.body.index, req.body.message, function (err, value) {
             if (err) {
                 res.status(500)
                 return res.json({

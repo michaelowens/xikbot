@@ -223,6 +223,14 @@ class Chat {
     action (channel, message) {
         this.say(channel, message, true)
     }
+
+    whisper (user, message) {
+        if (!this.whisperClient) {
+            return
+        }
+
+        this.whisperClient.whisper(user, message)
+    }
 }
 
 export default new Chat

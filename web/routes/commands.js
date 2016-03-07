@@ -3,7 +3,7 @@ import Log from '../../models/log'
 
 export default {
     root (req, res) {
-        Database.client.hgetall('commands_' + req.user.username, function (err, value) {
+        Database.client.hgetall(`users:${req.user.username}:commands`, function (err, value) {
             if (err) {
                 return res.json({
                     error: true,
@@ -51,7 +51,7 @@ export default {
             data.command = req.body.data.command
         }
 
-        var commandsKey = 'commands_' + req.user.username
+        var commandsKey = `users:${req.user.username}:commands`
 
         var saveCommand = () => {
             Database.client.hdel(commandsKey, req.body.originalCommand, function (err, value) {
@@ -97,7 +97,7 @@ export default {
             })
         }
 
-        Database.client.hdel('commands_' + req.user.username, req.body.command, function (err, value) {
+        Database.client.hdel(`users:${req.user.username}:commands`, req.body.command, function (err, value) {
             if (err) {
                 res.status(500)
                 return res.json({

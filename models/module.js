@@ -29,7 +29,7 @@ class ModuleManager {
     }
 
     async loadConfig (channel) {
-        let config = await Database.client.getAsync('moduleconfig_' + channel)
+        let config = await Database.client.getAsync(`users:${channel}:moduleconfig`)
         
         if (config) {
             let cacheKey = 'moduleconfig.' + channel
