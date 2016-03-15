@@ -104,6 +104,15 @@ class Chat {
                 months: months
             })
         })
+
+        client.on('notice', (channel, msgid, message) => {
+            Log.info('[notice]', channel, msgid, message)
+
+            if (msgid === 'color_changed') {
+                this.client.color('green')
+                this.awsClient.color('green')
+            }
+        })
     }
 
     spawnWhisperClient () {
