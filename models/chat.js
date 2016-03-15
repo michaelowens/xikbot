@@ -11,6 +11,8 @@ import User from './user'
 class Chat {
     constructor () {
         this.client = null
+        this.awsClient = null
+        this.awsChannels = []
         this.whisperClient = null
         this.whisperRetries = 0
         this.connected = false
@@ -25,45 +27,59 @@ class Chat {
             }
         }, 10000)
 
+        this.spawnClient('aws')
         this.spawnClient()
         this.spawnWhisperClient()
     }
 
-    spawnClient () {
+    spawnClient (cluster = 'main') {
         let client = new tmi.client({
             options: {
                 debug: Settings.bot.debug
             },
             connection: {
-                cluster: 'main',
+                cluster: cluster,
                 reconnect: true
             },
             identity: {
                 username: Settings.bot.name,
                 password: Settings.bot.oauth
-            }
+            },
+            logger: Log
         })
 
         client.connect()
 
         client.on('connected', (address, port) => {
             Log.info('[Chat]', `Connected to Twitch chat (${address.yellow}:${port})`)
-            this.client = client
+
+            if (cluster === 'aws') {
+                this.awsClient = client
+            } else {
+                this.client = client
+
+                this.connected = true
+                this.autojoin()
+                    .catch((err) => {
+                        Log.error(err.stack)
+                    })
+            }
 
             client.raw('CAP REQ :twitch.tv/membership')
             client.raw('CAP REQ :twitch.tv/commands')
             client.raw('CAP REQ :twitch.tv/tags')
-
-            this.connected = true
-            this.autojoin()
-                .catch((err) => {
-                    Log.error(err.stack)
-                })
         })
 
         client.on('chat', (channel, user, message, self) => {
             if (user.name !== Settings.bot.name.toLowerCase())
                 this.handleMessage(channel, user, message, self)
+        })
+
+        client.on('serverchange', (channel) => {
+            Log.error('ayyy you want to join', channel, 'on another cluster idiot')
+            client.part(channel)
+            this.awsClient.join(channel)
+            this.awsChannels.push(channel.replace('#', ''))
         })
     }
 
@@ -79,7 +95,8 @@ class Chat {
             identity: {
                 username: Settings.bot.name,
                 password: Settings.bot.oauth
-            }
+            },
+            logger: Log
         }
 
         if (this.whisperRetries <= 8) {
@@ -141,6 +158,26 @@ class Chat {
                 .catch(e => Log.error(e.stack))
             EventManager.emit('channel:join', channel)
         })
+    }
+
+    part (channel) {
+        if (typeof channel === 'object') {
+            return channel.forEach(channel => this.part(channel))
+        }
+
+        if (channel.indexOf('#') === -1) {
+            channel = '#' + channel
+        }
+        
+        this.client.part(channel)
+        this.awsClient.part(channel)
+
+        var index = this.awsChannels.indexOf(channel)
+        if (index > -1) {
+            this.awsChannels.splice(index, 1)
+        }
+
+        EventManager.emit('channel:part', channel)
     }
 
     async autojoin () {
@@ -218,6 +255,7 @@ class Chat {
         }
 
         this.client[action ? 'action' : 'say'](channel, message)
+        this.awsClient[action ? 'action' : 'say'](channel, message)
     }
 
     action (channel, message) {

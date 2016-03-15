@@ -5,6 +5,7 @@ export default class Log {
         let date = new Date(),
             hour = date.getHours(),
             minute = date.getMinutes(),
+            seconds = date.getSeconds(),
             ampm = hour >= 12 ? 'pm' : 'am'
 
         hour = hour % 12
@@ -12,7 +13,7 @@ export default class Log {
         hour = hour < 10 ? '0' + hour : hour
         minute = minute < 10 ? '0' + minute : minute
 
-        return `${hour}:${minute}${ampm}`
+        return `${hour}:${minute}:${seconds}${ampm}`
     }
 
     static write(...params) {
@@ -42,6 +43,14 @@ export default class Log {
         console.log(
             `[${this.getTime()}]`,
             'debug:'.yellow,
+            ...params
+        )
+    }
+
+    static warn(...params) {
+        console.log(
+            `[${this.getTime()}]`,
+            'warn:'.yellow,
             ...params
         )
     }

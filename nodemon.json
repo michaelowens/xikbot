@@ -7,6 +7,6 @@
     "events": {
         "restart": "osascript -e 'display notification \"App restarted due to:\n'$FILENAME'\" with title \"xikbot-web\"'"
     },
-    "ignore": ["web/*"],
+    "ignore": ["web/build/*", "web/dist/*", "web/pages/*", "web/services/*", "web/src/*", "web/views/*"],
     "ext": "js json ejs"
 }
