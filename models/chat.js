@@ -81,6 +81,28 @@ class Chat {
             this.awsClient.join(channel)
             this.awsChannels.push(channel.replace('#', ''))
         })
+
+        client.on('subscription', (channel, username) => {
+            EventManager.emit('subscription', {
+                resub: false,
+                channel: {
+                    name: channel
+                },
+                user: new User(user, channel),
+                months: 1
+            })
+        })
+
+        client.on('subanniversary', (channel, username, months) => {
+            EventManager.emit('subscription', {
+                resub: true,
+                channel: {
+                    name: channel
+                },
+                user: new User(user, channel),
+                months: months
+            })
+        })
     }
 
     spawnWhisperClient () {

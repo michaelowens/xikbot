@@ -5,7 +5,7 @@ import Database from './database'
 import Cache from './cache'
 import Log from './log'
 
-let MODULES = ['blacklist','love','commands','walls']
+let MODULES = ['blacklist','love','commands','walls','subscriptions']
 
 class ModuleManager {
     constructor () {
