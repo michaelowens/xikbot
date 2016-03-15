@@ -6,6 +6,7 @@ import ModuleManager from './models/module'
 import EventManager from './models/event'
 import Netmessage from './models/netmessage'
 import Web from './web'
+import Metrics from './models/metrics'
 
 let isBot = true,
     both = false,
@@ -24,6 +25,7 @@ switch (process.argv[2]) {
 dom.on('error', err => Log.error(err.stack))
 
 dom.run(() => {
+    Metrics.start()
     Database.connect()
     ModuleManager.load()
 
