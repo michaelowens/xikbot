@@ -71,8 +71,9 @@ class Chat {
         })
 
         client.on('chat', (channel, user, message, self) => {
-            if (user.name !== Settings.bot.name.toLowerCase())
+            if (user.name !== Settings.bot.name.toLowerCase()) {
                 this.handleMessage(channel, user, message, self)
+            }
         })
 
         client.on('serverchange', (channel) => {
