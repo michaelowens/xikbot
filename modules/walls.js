@@ -10,6 +10,7 @@ export default class WallsModule extends BaseModule {
         super()
 
         this.title = 'Walls'
+        this.description = 'Detect mod/sub walls and adds possible replies for making/breaking them'
         this.events = {
             'message': this.onMessage
         }

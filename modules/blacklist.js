@@ -12,6 +12,7 @@ export default class BlacklistModule extends BaseModule {
         super()
 
         this.title = 'Blacklist'
+        this.description = 'Protection against common spam and adds chat moderation functionality'
         this.events = {
             'message': this.onMessage
         }

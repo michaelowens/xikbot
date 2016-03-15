@@ -5,6 +5,7 @@ import Cache from '../models/cache'
 export default class BaseModule {
     constructor () {
         this.title = ''
+        this.description = ''
         this.global = false
         this.enabled = false
         this.commands = {}

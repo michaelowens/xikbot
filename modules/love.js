@@ -12,6 +12,7 @@ export default class LoveModule extends BaseModule {
         super()
 
         this.title = 'Love'
+        this.description = 'Daily love calculations between 2 people'
         this.limiter = new RateLimiter(2, 30000)
 
         this.commands['love'] = Commands.rawCommand(this, this.love, {
