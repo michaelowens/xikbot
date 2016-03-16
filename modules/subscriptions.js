@@ -8,17 +8,20 @@ export default class SubscriptionsModule extends BaseModule {
         this.title = 'subscriptions'
         this.description = 'Detect (re)subscriptions'
         this.events = {
-            'subscription': this.onSubscription
+            'subscription': this.onSubscription,
+            'host': this.onHost
         }
     }
 
     onSubscription (data) {
-        if (!this.isEnabledForChannel(data.channel.name)) {
-            return
-        }
-
         let resubmsg = (data.resub ? ` for ${data.months} months` : ``),
             msg = `[${data.user.displayName} has just subscribed${resubmsg}!]`
+
+        Chat.action(data.channel.name, msg)
+    }
+
+    onHost (data) {
+        let msg = `[${data.user.displayName} has just hosted us for ${data.viewers} viewers!]`;
 
         Chat.action(data.channel.name, msg)
     }

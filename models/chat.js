@@ -64,10 +64,6 @@ class Chat {
                         Log.error(err.stack)
                     })
             }
-
-            client.raw('CAP REQ :twitch.tv/membership')
-            client.raw('CAP REQ :twitch.tv/commands')
-            client.raw('CAP REQ :twitch.tv/tags')
         })
 
         client.on('chat', (channel, user, message, self) => {
@@ -84,23 +80,29 @@ class Chat {
         })
 
         client.on('subscription', (channel, username) => {
+            if (channel) {
+                channel = channel.replace(/^#/i, '')
+            }
             EventManager.emit('subscription', {
                 resub: false,
                 channel: {
                     name: channel
                 },
-                user: new User(user, channel),
+                user: new User(username, channel),
                 months: 1
             })
         })
 
         client.on('subanniversary', (channel, username, months) => {
+            if (channel) {
+                channel = channel.replace(/^#/i, '')
+            }
             EventManager.emit('subscription', {
                 resub: true,
                 channel: {
                     name: channel
                 },
-                user: new User(user, channel),
+                user: new User(username, channel),
                 months: months
             })
         })
