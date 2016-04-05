@@ -49,7 +49,6 @@
                         <li v-link-active="is-active"><a v-link="{ path: '/dashboard/commands' }">Commands</a></li>
                         <li v-link-active="is-active"><a v-link="{ path: '/dashboard/modules' }">Modules</a></li>
                         <li v-link-active="is-active"><a v-link="{ path: '/dashboard/timers' }">Timers</a></li>
-                        <li class="is-disabled"><a href="#">Blacklist</a></li>
                     </ul>
                 </div>
             </nav>

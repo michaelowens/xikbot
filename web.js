@@ -135,6 +135,8 @@ class Web {
         this.app.post('/api/leave', ensureAuthenticated, handleJoinApi('leave'))
 
         this.app.get('/api/modules', ensureAuthenticated, modulesRoutes.root)
+        this.app.get('/api/modules/:module', ensureAuthenticated, modulesRoutes.module)
+        this.app.post('/api/modules/save', ensureAuthenticated, modulesRoutes.save)
 
         function handleJoinApi(method) {
             return function (req, res) {
@@ -175,6 +177,10 @@ class Web {
             return res.json({
                 error: false
             })
+        })
+
+        this.app.get('/api/*', function (req, res) {
+            return res.json({})
         })
 
         this.app.get('*', (req, res) => {

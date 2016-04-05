@@ -4,6 +4,7 @@ export default {
     root (req, res) {
         Database.client.lrange(`users:${req.user.username}:timers`, 0, -1, function (err, value) {
             if (err) {
+                res.status(404)
                 return res.json({
                     error: true,
                     message: 'Could not get timers',
@@ -21,6 +22,7 @@ export default {
     getConfig (req, res) {
         Database.client.get(`users:${req.user.username}:timerconfig`, function (err, value) {
             if (err) {
+                res.status(404)
                 return res.json({
                     error: true,
                     message: 'Could not get timer config',

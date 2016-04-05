@@ -12,11 +12,7 @@ class Database {
     }
 
     connect () {
-        this.client = redis.createClient()
-
-        if ('redis' in Settings && 'auth' in Settings.redis) {
-            this.client.auth(Settings.redis.auth)
-        }
+        this.client = redis.createClient(Settings.redis || {})
     }
 }
 

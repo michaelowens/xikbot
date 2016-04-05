@@ -11,8 +11,6 @@ import User from './user'
 class Chat {
     constructor () {
         this.client = null
-        this.awsClient = null
-        this.awsChannels = []
         this.whisperClient = null
         this.whisperRetries = 0
         this.connected = false
@@ -27,12 +25,11 @@ class Chat {
             }
         }, 10000)
 
-        this.spawnClient('aws')
         this.spawnClient()
         this.spawnWhisperClient()
     }
 
-    spawnClient (cluster = 'main') {
+    spawnClient (cluster = 'aws') {
         let client = new tmi.client({
             options: {
                 debug: Settings.bot.debug
@@ -53,17 +50,13 @@ class Chat {
         client.on('connected', (address, port) => {
             Log.info('[Chat]', `Connected to Twitch chat (${address.yellow}:${port})`)
 
-            if (cluster === 'aws') {
-                this.awsClient = client
-            } else {
-                this.client = client
+            this.client = client
 
-                this.connected = true
-                this.autojoin()
-                    .catch((err) => {
-                        Log.error(err.stack)
-                    })
-            }
+            this.connected = true
+            this.autojoin()
+                .catch((err) => {
+                    Log.error(err.stack)
+                })
         })
 
         client.on('chat', (channel, user, message, self) => {
@@ -72,11 +65,10 @@ class Chat {
             }
         })
 
-        client.on('serverchange', (channel) => {
-            Log.error('ayyy you want to join', channel, 'on another cluster idiot')
-            client.part(channel)
-            this.awsClient.join(channel)
-            this.awsChannels.push(channel.replace('#', ''))
+        client.on('action', (channel, user, message, self) => {
+            if (user.name !== Settings.bot.name.toLowerCase()) {
+                this.handleAction(channel, user, message, self)
+            }
         })
 
         client.on('subscription', (channel, username) => {
@@ -112,8 +104,19 @@ class Chat {
 
             if (msgid === 'color_changed') {
                 this.client.color('green')
-                this.awsClient.color('green')
             }
+        })
+
+        // TODO: fix cause this won't work, only if you're on oauth of channel owner
+        client.on('hosted', (channel, username, viewers) => {
+            Log.info(`[hosted] ${channel} got hosted by ${username} for ${viewers} viewers`)
+            EventManager.emit('host', {
+                channel: {
+                    name: channel
+                },
+                user: new User(username, channel),
+                viewers: viewers
+            })
         })
     }
 
@@ -183,7 +186,7 @@ class Chat {
         }
 
         if (channel.indexOf('#') === -1) {
-            channel = '#' + channel
+            channel = `#${channel}`
         }
         
         this.joinLimiter.removeTokens(1, () => {
@@ -200,17 +203,10 @@ class Chat {
         }
 
         if (channel.indexOf('#') === -1) {
-            channel = '#' + channel
+            channel = `#${channel}`
         }
         
         this.client.part(channel)
-        this.awsClient.part(channel)
-
-        var index = this.awsChannels.indexOf(channel)
-        if (index > -1) {
-            this.awsChannels.splice(index, 1)
-        }
-
         EventManager.emit('channel:part', channel)
     }
 
@@ -275,13 +271,25 @@ class Chat {
         }
     }
 
+    handleAction (channel, user, message, self, whisper = false) {
+        EventManager.emit('action', {
+            message: message,
+            params: message.split(' '),
+            whisper: whisper,
+            user: new User(user, channel),
+            channel: {
+                name: channel
+            }
+        })
+    }
+
     say (channel, message, action = false) {
         if (!this.chatLimiter.tryRemoveTokens(1)) {
             return Xikbot.error('Could not send response, rate limited')
         }
 
         if (channel.indexOf('#') === -1) { 
-            channel = '#' + channel 
+            channel = `#${channel}`
         }
 
         if (!action) {
@@ -289,7 +297,6 @@ class Chat {
         }
 
         this.client[action ? 'action' : 'say'](channel, message)
-        this.awsClient[action ? 'action' : 'say'](channel, message)
     }
 
     action (channel, message) {

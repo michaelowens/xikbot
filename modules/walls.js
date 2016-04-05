@@ -12,13 +12,19 @@ export default class WallsModule extends BaseModule {
         this.title = 'Walls'
         this.description = 'Detect mod/sub walls and adds possible replies for making/breaking them'
         this.events = {
-            'message': this.onMessage
+            'message': this.onMessage,
+            'action': this.onMessage
         }
 
-        this.modCount = 0
-        this.subCount = 0
+        this.modCount = {}
+        this.subCount = {}
 
         this.settings = {
+            'onlyWhenLive': new ModuleSetting({
+                label: '(COMING SOON) Only active when channel is live',
+                default: false,
+                disabled: true
+            }),
             'modWallCount': new ModuleSetting({
                 label: 'Amount of messages by moderators before considered a wall',
                 default: 15,
@@ -36,64 +42,89 @@ export default class WallsModule extends BaseModule {
                     min: 1,
                     max: 99
                 }
+            }),
+            'wallMessage': new ModuleSetting({
+                label: 'Message to send when wall has been activated',
+                default: 'Can a non-{type} please end this {type} wall?! SwiftRage',
+                placeholder: 'Can a non-{type} please end this {type} wall?! SwiftRage'
+            }),
+            'wallBreakMessage': new ModuleSetting({
+                label: 'Message to send when a user breaks a wall',
+                default: 'Thank you, {user} our savior, for stopping the {type} wall! kanoHype',
+                placeholder: 'Thank you, {user} our savior, for stopping the {type} wall! kanoHype'
             })
         }
     }
 
-    onMessage (data) {
+    async onMessage (data) {
         let reset = false,
-            wall = null
+            wall = null,
+            settings = await this.getModuleSettingsValues(data.channel.name)
 
-        if (this.modCount >= this.settings.modWallCount.value || this.subCount >= this.settings.subWallCount.value) {
-            wall = (this.modCount >= this.settings.modWallCount.value ? 'mod' : 'sub')
+        if (!(data.channel.name in this.modCount)) {
+            this.modCount[data.channel.name] = 0
+        }
+
+        if (!(data.channel.name in this.subCount)) {
+            this.subCount[data.channel.name] = 0
+        }
+
+        if (this.modCount[data.channel.name] >= settings.modWallCount || this.subCount[data.channel.name] >= settings.subWallCount) {
+            wall = (this.modCount[data.channel.name] >= settings.modWallCount ? 'mod' : 'sub')
 
             if (wall === 'mod' && !data.user.isMod()) {
                 reset = true
-                this.modCount = 0
+                this.modCount[data.channel.name] = 0
             }
 
             if (wall === 'sub' && !data.user.isSubscriber()) {
                 reset = true
-                this.subCount = 0
+                this.subCount[data.channel.name] = 0
             }
 
             if (reset) {
-                Chat.action(data.channel.name, `Thank you, ${data.user.displayName} our savior, for stopping the ${wall} wall! kanoHype`)
+                Chat.action(data.channel.name, this.phrase(settings.wallBreakMessage, {
+                    user: data.user.displayName,
+                    type: wall
+                })) //`Thank you, ${data.user.displayName} our savior, for stopping the ${wall} wall! kanoHype`)
                 return
             }
             wall = null
         }
 
         if (!data.user.isSubscriber() && !data.user.isMod()) {
-            this.modCount = 0
-            this.subCount = 0
+            this.modCount[data.channel.name] = 0
+            this.subCount[data.channel.name] = 0
             return
         }
 
         if (data.user.isMod()) {
-            this.modCount++
+            this.modCount[data.channel.name]++
 
             if (!data.user.isSubscriber()) {
-                this.subCount = 0
+                this.subCount[data.channel.name] = 0
             }
         }
 
         if (data.user.isSubscriber()) {
-            this.subCount++
+            this.subCount[data.channel.name]++
 
             if (!data.user.isMod()) {
-                this.modCount = 0
+                this.modCount[data.channel.name] = 0
             }
         }
 
-        if (this.modCount === this.settings.modWallCount.value) {
+        if (this.modCount[data.channel.name] === settings.modWallCount) {
             wall = 'mod'
-        } else if (this.subCount === this.settings.subWallCount.value) {
+        } else if (this.subCount[data.channel.name] === settings.subWallCount) {
             wall = 'sub'
         }
 
         if (wall) {
-            Chat.action(data.channel.name, `Can a non-${wall} please end this ${wall} wall?! SwiftRage`)
+            Chat.action(data.channel.name, this.phrase(settings.wallMessage, {
+                user: data.user.displayName,
+                type: wall
+            })) //`Can a non-${wall} please end this ${wall} wall?! SwiftRage`)
         }
     }
 }

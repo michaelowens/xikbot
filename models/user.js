@@ -3,6 +3,12 @@ import Settings from './settings'
 
 export default class User {
     constructor (user, channel) {
+        if (typeof user === 'string') {
+            user = {
+                'display-name': user,
+                'username': user
+            }
+        }
         this.info = user
         this.channel = channel
         this.displayName = user['display-name'] || user.username
@@ -26,6 +32,6 @@ export default class User {
     }
 
     isGlobalStaff () {
-        return ['global_mod', 'admin', 'staff'].indexOf(this.info['user-type'])
+        return ['global_mod', 'admin', 'staff'].includes(this.info['user-type'])
     }
 }

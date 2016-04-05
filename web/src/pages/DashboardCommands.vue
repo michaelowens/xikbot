@@ -116,7 +116,7 @@ export default {
         data ({to, next}) {
             let loaded = 0
 
-            commandService.get((err, data) => {
+            commandService.all((err, data) => {
                 if (err) {
                     // we're not really handling this right now (^:
                 }
@@ -129,7 +129,7 @@ export default {
                 }
             })
 
-            moduleService.get((err, data) => {
+            moduleService.all((err, data) => {
                 if (err) {
                     // we're not really handling this right now (^:
                 }
@@ -238,7 +238,7 @@ export default {
             })
         },
         getCommandList () {
-            commandService.get((err, data) => {
+            commandService.all((err, data) => {
                 if (err) {
                     // we're not really handling this right now (^:
                 }

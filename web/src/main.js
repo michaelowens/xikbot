@@ -6,6 +6,8 @@ import DashboardPage from './pages/Dashboard'
 import DashboardIndexPage from './pages/DashboardIndex'
 import DashboardCommandsPage from './pages/DashboardCommands'
 import DashboardTimersPage from './pages/DashboardTimers'
+import DashboardModulesPage from './pages/DashboardModules'
+import DashboardModuleSettingsPage from './pages/DashboardModuleSettings'
 import NotFoundPage from './pages/NotFound'
 import VueRouter from 'vue-router'
 import VueResource from 'vue-resource'
@@ -35,6 +37,12 @@ router.map({
             },
             'commands': {
                 component: DashboardCommandsPage
+            },
+            'modules/:module': {
+                component: DashboardModuleSettingsPage
+            },
+            'modules': {
+                component: DashboardModulesPage
             },
             '/': {
                 component: DashboardIndexPage
