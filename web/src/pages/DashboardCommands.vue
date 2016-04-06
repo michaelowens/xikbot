@@ -21,7 +21,7 @@
                             <p class="menu-heading">
                                 Commands
                             </p>
-                            <a class="menu-block" href="#" v-for="command in commands" @click="editCommand($key)" :class="{'is-active': selectedCommand == $key}">
+                            <a class="menu-block" href="#" v-for="command in commands | orderBy '$key'" @click="editCommand($key)" :class="{'is-active': selectedCommand == $key}">
                                 <span class="menu-icon">
                                     <i class="fa fa-chevron-right"></i>
                                 </span>
