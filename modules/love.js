@@ -27,6 +27,21 @@ export default class LoveModule extends BaseModule {
                 constraint: {
                     minLength: 1
                 }
+            }),
+            'responseLove': new ModuleSetting({
+                label: 'What to respond when someone loves someone',
+                default: 'There\'s {percentage}% {emote} between {user} and {other_user}',
+                placeholder: 'There\'s {percentage}% {emote} between {user} and {other_user}'
+            }),
+            'responseLoveBot': new ModuleSetting({
+                label: 'What to respond when someone loves Xikbot',
+                default: 'Wow someone actually loves me... I love you too {user}! AngelThump',
+                placeholder: 'Wow someone actually loves me... I love you too {user}! AngelThump'
+            }),
+            'responseLoveSelf': new ModuleSetting({
+                label: 'What to respond when someone loves themselves',
+                default: 'Wow {user} really loves themselves too much KappaPride',
+                placeholder: 'Wow {user} really loves themselves too much KappaPride'
             })
         }
     }

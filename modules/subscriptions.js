@@ -30,8 +30,8 @@ export default class SubscriptionsModule extends BaseModule {
     async onSubscription (data) {
         let settings = await this.getModuleSettingsValues(data.channel.name),
             msg = this.phrase(settings.subMessage, {
-            user: data.user.displayName
-        }) //`[Thank you for subscribing, ${data.user.displayName}! kanoHype Welcome to the PogChamp squad!]`
+                user: data.user.displayName
+            }) //`[Thank you for subscribing, ${data.user.displayName}! kanoHype Welcome to the PogChamp squad!]`
 
         if (data.resub) {
             msg = this.phrase(settings.resubMessage, {
