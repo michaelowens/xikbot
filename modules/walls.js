@@ -77,12 +77,17 @@ export default class WallsModule extends BaseModule {
                 this.modCount[data.channel.name] = 0
             }
 
-            if (wall === 'sub' && !data.user.isSubscriber()) {
+            if (wall === 'sub' && (!data.user.isSubscriber() || data.user.name === 'allie9926')) {
                 reset = true
                 this.subCount[data.channel.name] = 0
             }
 
             if (reset) {
+                if (data.user.name === 'allie9926') {
+                    Chat.action(data.channel.name, `${data.user.displayName} will always be a pleb in my heart. Thanks for stopping the ${wall} wall! kanoW`)
+                    return
+                }
+
                 Chat.action(data.channel.name, this.phrase(settings.wallBreakMessage, {
                     user: data.user.displayName,
                     type: wall

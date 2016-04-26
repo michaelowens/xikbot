@@ -179,7 +179,6 @@ class Chat {
         })
     }
 
-    // TODO: Rate limit ASAP! max 50 per 15s
     join (channel) {
         if (typeof channel === 'object') {
             return channel.forEach(channel => this.join(channel))
@@ -188,7 +187,7 @@ class Chat {
         if (channel.indexOf('#') === -1) {
             channel = `#${channel}`
         }
-        
+
         this.joinLimiter.removeTokens(1, () => {
             this.client.join(channel)
             ModuleManager.loadConfig(channel.substr(1))
@@ -205,7 +204,7 @@ class Chat {
         if (channel.indexOf('#') === -1) {
             channel = `#${channel}`
         }
-        
+
         this.client.part(channel)
         EventManager.emit('channel:part', channel)
     }
@@ -288,12 +287,12 @@ class Chat {
             return Xikbot.error('Could not send response, rate limited')
         }
 
-        if (channel.indexOf('#') === -1) { 
+        if (channel.indexOf('#') === -1) {
             channel = `#${channel}`
         }
 
         if (!action) {
-            message = message.replace(/^[.|/]+/i, '') 
+            message = message.replace(/^[.|/]+/i, '')
         }
 
         this.client[action ? 'action' : 'say'](channel, message)
