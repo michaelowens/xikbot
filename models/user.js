@@ -28,7 +28,7 @@ export default class User {
     }
 
     isAdmin () {
-        return this.name in Settings.bot.admins
+        return Settings.bot.admins.includes(this.name)
     }
 
     isGlobalStaff () {

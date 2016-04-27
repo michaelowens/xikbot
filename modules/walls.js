@@ -87,6 +87,14 @@ export default class WallsModule extends BaseModule {
                     Chat.action(data.channel.name, `${data.user.displayName} will always be a pleb in my heart. Thanks for stopping the ${wall} wall! kanoW`)
                     return
                 }
+		
+                if (data.user.name === 'william_is_good' && (data.message === 'ok' || data.message === 'ok.')) {
+                    Chat.action(data.channel.name, 'no.')
+                    setTimeout(_ => {
+                        Chat.action(data.channel.name, `Okay, fine... Thank you ${data.user.displayName} for breaking the ${wall} wall. BabyRage`)
+                    }, 4000)
+                    return
+                }
 
                 Chat.action(data.channel.name, this.phrase(settings.wallBreakMessage, {
                     user: data.user.displayName,

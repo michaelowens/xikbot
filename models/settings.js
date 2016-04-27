@@ -1,5 +1,6 @@
 import fs from 'fs'
 import extend from 'extend'
+import Log from './log'
 
 let options = {},
     defaults = {

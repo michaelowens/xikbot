@@ -46,21 +46,26 @@ export default class LoveModule extends BaseModule {
         }
     }
 
-    love (message) {
+    async love (message) {
         if (!message.user.isMod() && !message.user.isAdmin() && !this.limiter.tryRemoveTokens(1)) {
             return
         }
 
         let user_from = message.user.name,
-            user_to = message.params.join(' ')
+            user_to = message.params.join(' '),
+            settings = await this.getModuleSettingsValues(message.channel.name)
 
         if (user_to.toLowerCase() === 'xikbot') {
-            Chat.say(message.channel.name, `Wow someone actually loves me... I love you too ${message.user.displayName}! AngelThump`)
+            Chat.say(message.channel.name, this.phrase(settings.responseLoveBot, {
+                user: message.user.displayName
+            }))
             return
         }
 
         if (user_to.toLowerCase() === user_from || ['myself', 'my self', 'himself', 'herself', 'him self', 'her self', 'itself'].indexOf(user_to.toLowerCase()) > -1) {
-            Chat.say(message.channel.name, `Wow ${displayName} really loves themselves too much KappaPride`)
+            Chat.say(message.channel.name, this.phrase(settings.responseLoveSelf, {
+                user: message.user.displayName
+            }))
             return
         }
 
@@ -72,6 +77,11 @@ export default class LoveModule extends BaseModule {
         let date = new Date().toJSON().slice(0, 10),
             love = Math.floor(seedrandom(`${message.channel.name} ${user_from} ${user_to} ${date}`.toLowerCase())() * 100)
 
-        Chat.say(message.channel.name, `There's ${love}% ${this.settings.emote.value} between ${message.user.displayName} and ${user_to}`)
+        Chat.say(message.channel.name, this.phrase(settings.responseLove, {
+            percentage: love,
+            emote: settings.emote,
+            user: message.user.displayName,
+            other_user: user_to
+        }))
     }
 }

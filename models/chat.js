@@ -26,7 +26,7 @@ class Chat {
         }, 10000)
 
         this.spawnClient()
-        this.spawnWhisperClient()
+        //this.spawnWhisperClient()
     }
 
     spawnClient (cluster = 'aws') {
@@ -63,6 +63,11 @@ class Chat {
             if (user.name !== Settings.bot.name.toLowerCase()) {
                 this.handleMessage(channel, user, message, self)
             }
+        })
+
+        client.on('whisper', (user, message, self) => {
+            Log.debug('got whisper', self, user, message)
+            this.handleMessage(null, user, message, self, true)
         })
 
         client.on('action', (channel, user, message, self) => {

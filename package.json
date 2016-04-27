@@ -37,6 +37,7 @@
     "es6-promisify-all": "^0.1.0",
     "eslint": "2.0.0-rc.1",
     "eslint-friendly-formatter": "2.0.2",
+    "eval": "0.1.1",
     "express": "4.13.4",
     "express-session": "1.13.0",
     "extend": "^3.0.0",
