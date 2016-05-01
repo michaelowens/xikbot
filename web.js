@@ -1,3 +1,4 @@
+import domain from 'domain'
 import path from 'path'
 import express from 'express'
 import engine from 'ejs-locals'
@@ -108,35 +109,35 @@ class Web {
     }
 
     routes () {
-        this.app.get(
+        this.route('get', 
             '/auth',
             passport.authenticate('twitchtv', { scope: ['user_read'] }),
             authRoutes.root
         )
-        this.app.get(
+        this.route('get', 
             '/auth/callback',
             passport.authenticate('twitchtv', { failureRedirect: '/' }),
             authRoutes.callback
         )
-        this.app.get('/auth/logout', authRoutes.logout)
+        this.route('get', '/auth/logout', authRoutes.logout)
 
-        this.app.get('/api/commands', ensureAuthenticated, commandsRoutes.root)
-        this.app.post('/api/commands/save', ensureAuthenticated, commandsRoutes.save)
-        this.app.post('/api/commands/delete', ensureAuthenticated, commandsRoutes.delete)
+        this.route('get', '/api/commands', ensureAuthenticated, commandsRoutes.root)
+        this.route('post', '/api/commands/save', ensureAuthenticated, commandsRoutes.save)
+        this.route('post', '/api/commands/delete', ensureAuthenticated, commandsRoutes.delete)
 
-        this.app.get('/api/timers', ensureAuthenticated, timersRoutes.root)
-        this.app.get('/api/timers/config', ensureAuthenticated, timersRoutes.getConfig)
-        this.app.post('/api/timers/config', ensureAuthenticated, timersRoutes.postConfig)
-        this.app.post('/api/timers/new', ensureAuthenticated, timersRoutes.new)
-        this.app.post('/api/timers/delete', ensureAuthenticated, timersRoutes.delete)
-        this.app.post('/api/timers/save', ensureAuthenticated, timersRoutes.save)
+        this.route('get', '/api/timers', ensureAuthenticated, timersRoutes.root)
+        this.route('get', '/api/timers/config', ensureAuthenticated, timersRoutes.getConfig)
+        this.route('post', '/api/timers/config', ensureAuthenticated, timersRoutes.postConfig)
+        this.route('post', '/api/timers/new', ensureAuthenticated, timersRoutes.new)
+        this.route('post', '/api/timers/delete', ensureAuthenticated, timersRoutes.delete)
+        this.route('post', '/api/timers/save', ensureAuthenticated, timersRoutes.save)
 
-        this.app.post('/api/join', ensureAuthenticated, handleJoinApi('join'))
-        this.app.post('/api/leave', ensureAuthenticated, handleJoinApi('leave'))
+        this.route('post', '/api/join', ensureAuthenticated, handleJoinApi('join'))
+        this.route('post', '/api/leave', ensureAuthenticated, handleJoinApi('leave'))
 
-        this.app.get('/api/modules', ensureAuthenticated, modulesRoutes.root)
-        this.app.get('/api/modules/:module', ensureAuthenticated, modulesRoutes.module)
-        this.app.post('/api/modules/save', ensureAuthenticated, modulesRoutes.save)
+        this.route('get', '/api/modules', ensureAuthenticated, modulesRoutes.root)
+        this.route('get', '/api/modules/:module', ensureAuthenticated, modulesRoutes.module)
+        this.route('post', '/api/modules/save', ensureAuthenticated, modulesRoutes.save)
 
         function handleJoinApi(method) {
             return function (req, res) {
@@ -173,19 +174,42 @@ class Web {
             }
         }
 
-        this.app.get('/api/ping', ensureAuthenticated, function (req, res) {
+        this.route('get', '/api/ping', ensureAuthenticated, function (req, res) {
             return res.json({
                 error: false
             })
         })
 
-        this.app.get('/api/*', function (req, res) {
+        this.route('get', '/api/*', function (req, res) {
             return res.json({})
         })
 
-        this.app.get('*', (req, res) => {
+        this.route('get', '*', (req, res) => {
             res.render('index', {user: req.user, env: process.env})
         })
+    }
+
+    route (method, url, middleware, callback) {
+        if (typeof callback === 'undefined') {
+            callback = middleware
+            middleware = undefined
+        }
+        
+        let errCatcher = callback => {
+            return (req, res) => {
+                let response
+                try {
+                    response = callback(req, res)
+                } catch (e) {
+                    Log.error(e.stack)
+                }
+
+                if (response instanceof Promise) {
+                    response.catch(e => Log.error(e.stack))
+                }
+            } 
+        }
+        this.app[method](url, middleware, errCatcher(callback))
     }
 
     startListening () {

@@ -1,0 +1,15 @@
+{
+  "apps": [{
+    "name": "xikbot",
+    "script": "index.js",
+    "args": "both",
+    "watch": true,
+    "ignore_watch": [
+      ".git", "web/build/*", "web/dist/*", "web/pages/*", "web/services/*", "web/src/*", "web/views/*" 
+    ],
+    "env": {
+      "NODE_ENV": "development",
+      "DEBUG": "true"
+    }
+  }]
+}
