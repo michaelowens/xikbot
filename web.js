@@ -189,11 +189,8 @@ class Web {
         })
     }
 
-    route (method, url, middleware, callback) {
-        if (typeof callback === 'undefined') {
-            callback = middleware
-            middleware = undefined
-        }
+    route (method, url, ...callbacks) {
+        let callback = callbacks.pop()
         
         let errCatcher = callback => {
             return (req, res) => {
@@ -209,7 +206,7 @@ class Web {
                 }
             } 
         }
-        this.app[method](url, middleware, errCatcher(callback))
+        this.app[method](url, ...callbacks, errCatcher(callback))
     }
 
     startListening () {

@@ -8,5 +8,6 @@
 ### Changed
 
 ### Fixed
-- Errors from async web routes being eaten
+- Errors from async web routes being eateni
+- API not responding when no settings in database
 

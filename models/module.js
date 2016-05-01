@@ -57,6 +57,8 @@ class ModuleManager {
 
             return config
         }
+
+        return {}
     }
 
     async setConfig (channel, data) {
