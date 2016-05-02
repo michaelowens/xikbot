@@ -1,13 +1,15 @@
 # Change Log
 
 ## [Unreleased]
+
+## [0.0.1] - 2016-05-02
 ### Added
 - PM2 process file
 - Settings for each module
-
-### Changed
 
 ### Fixed
 - Errors from async web routes being eateni
 - API not responding when no settings in database
 
+[Unreleased]: https://github.com/michaelowens/xikbot/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/michaelowens/xikbot/commits/v0.0.1
