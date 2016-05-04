@@ -1,5 +1,7 @@
 # Xikbot
 
+[![Build Status](https://travis-ci.org/michaelowens/xikbot.svg?branch=master)](https://travis-ci.org/michaelowens/xikbot)
+
 > A highly configurable and extensible Twitch bot written in Node.js.
 
 ## Build Setup
