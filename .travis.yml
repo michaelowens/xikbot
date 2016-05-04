@@ -6,6 +6,6 @@ before_install:
   - npm set progress=false
   - npm install -g npm@latest
   - npm install -g gulp
-  - gulp
-
+before_script:
+- gulp
 script: npm test
