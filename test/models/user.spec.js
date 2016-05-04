@@ -1,5 +1,17 @@
 import {assert} from 'chai'
-import User from '../../models/user.js'
+import mockery from 'mockery'
+//import User from '../../models/user.js'
+
+mockery.enable({
+  warnOnUnregistered: false
+})
+mockery.registerMock('./settings', {
+  bot: {
+    admins: ['Xikeon']
+  }
+})
+
+let User = require('../../models/user.js').default
 
 let data = {
   username: 'Xikeon',
