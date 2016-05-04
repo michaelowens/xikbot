@@ -23,4 +23,6 @@ nodemon index.js bot
 # run web only
 nodemon index.js web
 
+# or run via pm2
+pm2 start process.json
 ```
