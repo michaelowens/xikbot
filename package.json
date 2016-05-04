@@ -4,7 +4,7 @@
   "description": "A twitch bot with an attitude",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/babel-node node_modules/.bin/isparta cover node_modules/.bin/_mocha -- --recursive"
+    "test": "node_modules/.bin/babel-node node_modules/.bin/isparta cover node_modules/mocha/bin/_mocha -- --recursive test/"
   },
   "repository": {
     "type": "git",
