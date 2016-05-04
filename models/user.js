@@ -6,7 +6,7 @@ export default class User {
         if (typeof user === 'string') {
             user = {
                 'display-name': user,
-                'username': user
+                'username': user.toLowerCase()
             }
         }
         this.info = user

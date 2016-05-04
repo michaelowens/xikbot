@@ -8,7 +8,7 @@ import Netmessage from './models/netmessage'
 import Web from './web'
 import Metrics from './models/metrics'
 
-let isBot = true,
+let isBot = false,
     both = false,
     dom = domain.create()
 
@@ -20,6 +20,8 @@ switch (process.argv[2]) {
         isBot = false
     case 'both':
         both = true
+    default:
+        process.exit(0)
 }
 
 dom.on('error', err => Log.error(err.stack))
