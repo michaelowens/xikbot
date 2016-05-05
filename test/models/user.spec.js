@@ -7,7 +7,7 @@ mockery.enable({
 })
 mockery.registerMock('./settings', {
   bot: {
-    admins: ['Xikeon']
+    admins: ['xikeon']
   }
 })
 
@@ -42,7 +42,7 @@ let data = {
 }
 
 describe('User', () => {
-  describe('#constructor', () => {
+  describe('.constructor', () => {
     it('can be initialised with a string', () => {
       let u = new User(data.username)
       assert.equal(u.info['display-name'], data.username)
@@ -68,7 +68,7 @@ describe('User', () => {
     })
   })
 
-  describe('#isBroadcaster', () => {
+  describe('.isBroadcaster', () => {
     it('returns true for broadcaster', () => {
       let u = new User(data.user, data.user.username)
       assert.isTrue(u.isBroadcaster(), 'as object')
@@ -86,7 +86,7 @@ describe('User', () => {
     })
   })
 
-  describe('#isSubscriber', () => {
+  describe('.isSubscriber', () => {
     it('returns true for a subscriber', () => {
       let u = new User(data.sub, data.user.username)
       assert.isTrue(u.isSubscriber(), 'as object')
@@ -98,6 +98,62 @@ describe('User', () => {
 
       u = new User(data.mod['display-name'], data.user.username)
       assert.isFalse(u.isSubscriber(), 'as string')
+    })
+  })
+
+  describe('.isMod', () => {
+    it('returns true for a moderator or broadcaster', () => {
+      let u = new User(data.mod, data.user.username)
+      assert.isTrue(u.isMod(), 'as object')
+
+      u = new User(data.user, data.user.username)
+      assert.isTrue(u.isMod(), 'as object (broadcaster)')
+
+      u = new User(data.username, data.user.username)
+      assert.isTrue(u.isMod(), 'as string (broadcaster)')
+    })
+
+    it('returns false for non-mods', () => {
+      let u = new User(data.sub, data.user.username)
+      assert.isFalse(u.isMod(), 'as object')
+    })
+  })
+
+  describe('.isAdmin', () => {
+    it('returns true for admins configured in the settings', () => {
+      let u = new User(data.user)
+      assert.isTrue(u.isAdmin(), 'as object, without channel')
+
+      u = new User(data.user, data.user.username)
+      assert.isTrue(u.isAdmin(), 'as object, with channel')
+
+      u = new User(data.username)
+      assert.isTrue(u.isAdmin(), 'as string, without channel')
+
+      u = new User(data.username, data.user.username)
+      assert.isTrue(u.isAdmin(), 'as string, with channel')
+    })
+
+    it('returns true regardless of upper case characters', () => {
+      let u = new User(data.username.toUpperCase())
+      assert.isTrue(u.isAdmin(), 'as string, without channel, uppercase name')
+
+      u = new User(data.username, data.user.username.toUpperCase())
+      assert.isTrue(u.isAdmin(), 'as string, without channel, uppercase channel')
+    })
+
+    it('returns false for users not configured in the settings', () => {
+      let u = new User(data.sub)
+      assert.isFalse(u.isAdmin(), 'as object, without channel')
+
+      u = new User(data.sub, data.user.username)
+      assert.isFalse(u.isAdmin(), 'as object, with channel')
+
+      u = new User(data.sub.username)
+      assert.isFalse(u.isAdmin(), 'as string, without channel')
+
+      u = new User(data.sub.username, data.user.username)
+      assert.isFalse(u.isAdmin(), 'as string, with channel')
     })
   })
 })
