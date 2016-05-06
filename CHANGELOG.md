@@ -1,6 +1,12 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- Unit tests for
+  - Models: User
+
+### Changed
+- Bot now requires parameter `bot`, `web` or `both` to start
 
 ## [0.0.1] - 2016-05-02
 ### Added

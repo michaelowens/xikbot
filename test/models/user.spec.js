@@ -156,4 +156,34 @@ describe('User', () => {
       assert.isFalse(u.isAdmin(), 'as string, with channel')
     })
   })
+
+  describe('.isGlobalStaff', () => {
+    it('returns true for global staff', () => {
+      let u = new User(data.staff)
+      assert.isTrue(u.isGlobalStaff(), 'as object, without channel')
+
+      u = new User(data.staff, data.user.username)
+      assert.isTrue(u.isGlobalStaff(), 'as object, with channel')
+    })
+
+    it('returns false for non-global staff', () => {
+      let u = new User(data.user)
+      assert.isFalse(u.isGlobalStaff(), 'user, as object, without channel')
+
+      u = new User(data.sub)
+      assert.isFalse(u.isGlobalStaff(), 'sub, as object, without channel')
+
+      u = new User(data.user, data.user.username)
+      assert.isFalse(u.isGlobalStaff(), 'user, as object, with channel')
+
+      u = new User(data.sub, data.user.username)
+      assert.isFalse(u.isGlobalStaff(), 'sub, as object, with channel')
+
+      u = new User(data.user.username)
+      assert.isFalse(u.isGlobalStaff(), 'user, as string, without channel')
+
+      u = new User(data.sub.username, data.user.username)
+      assert.isFalse(u.isGlobalStaff(), 'sub, as string, with channel')
+    })
+  })
 })
