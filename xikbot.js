@@ -8,19 +8,23 @@ import Netmessage from './models/netmessage'
 import Web from './web'
 import Metrics from './models/metrics'
 
-let isBot = true,
-    both = false,
+let isBot = false,
+    isWeb = false,
     dom = domain.create()
 
 EventManager.on('error', (err) => Log.error(err.stack))
 process.on('uncaughtException', (err) => Log.error(err.stack))
 
 switch (process.argv[2]) {
+    case 'bot':
+        isBot = true
+        break
     case 'web':
-        isBot = false
+        isWeb = true
         break
     case 'both':
-        both = true
+        isBot = true
+        isWeb = true
         break
     default:
         process.exit(0)
@@ -34,12 +38,12 @@ dom.run(() => {
     Database.connect()
     ModuleManager.load()
 
-    if (isBot || both) {
+    if (isBot) {
         Chat.connect()
         Netmessage.connectServer()
     }
 
-    if (!isBot || both) {
+    if (isWeb) {
         Web.start()
         Netmessage.connectClient()
     }
