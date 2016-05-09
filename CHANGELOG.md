@@ -3,10 +3,13 @@
 ## [Unreleased]
 ### Added
 - Unit tests for
-  - Models: User
+  - Models: User, Log
 
 ### Changed
 - Bot now requires parameter `bot`, `web` or `both` to start
+
+### Fixed
+- Log: Seconds not being 2 digits when < 10 seconds in timestamp
 
 ## [0.0.1] - 2016-05-02
 ### Added

@@ -12,6 +12,7 @@ export default class Log {
         hour = hour ? hour : 12
         hour = hour < 10 ? '0' + hour : hour
         minute = minute < 10 ? '0' + minute : minute
+        seconds = seconds < 10 ? '0' + seconds : seconds
 
         return `${hour}:${minute}:${seconds}${ampm}`
     }
