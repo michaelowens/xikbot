@@ -8,4 +8,4 @@ before_install:
   - npm install -g gulp
 before_script:
 - gulp
-script: npm test
+script: npm run-script mocha
