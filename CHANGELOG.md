@@ -4,6 +4,8 @@
 ### Added
 - Unit tests for
   - Models: User, Log
+- Migrations runner
+- Method to close database connection: `Database.quit()`
 
 ### Changed
 - Bot now requires parameter `bot`, `web` or `both` to start
@@ -19,9 +21,11 @@
   | babel-polyfill                      | 6.7.4       | 6.8.0       |
   | babel-register                      | 6.7.2       | 6.8.0       |
   | body-parser                         | 1.15.0      | 1.15.1      |
-  | eslint                              | 2.8.0       | 2.9.0       | 
+  | commander                           |             | ^2.9.0      |
+  | eslint                              | 2.8.0       | 2.9.0       |
   | eslint-friendly-formatter           | 2.0.2       | 2.0.4       |
-  | gulp-open                           | 1.0.0       | 2.0.0       |                                 
+  | glob                                |             | ^7.0.3      |
+  | gulp-open                           | 1.0.0       | 2.0.0       |
   | html-webpack-plugin                 | 2.15.0      | 2.16.1      |
   | mockery                             | ^1.6.2      | ^1.7.0      |
   | redis                               | 2.6.0-1     | 2.6.0-2     |

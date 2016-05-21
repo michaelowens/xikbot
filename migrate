@@ -1,0 +1,228 @@
+#!node_modules/.bin/babel-node
+
+import Database from './models/database'
+import commander from 'commander'
+import fs from 'fs'
+import path from 'path'
+import glob from 'glob'
+
+const DIRECTION = {'-1': 'down', '1': 'up'}
+
+class Utils {
+  static leftPad (str, length, pad) {
+    str = String(str)
+    pad = String(pad)
+
+    let padding = Array((length - str.length) + 1).join(pad)
+    return padding + str
+  }
+
+  static padDate (num) {
+    return Utils.leftPad(num, 2, 0)
+  }
+
+  static formatDate (date) {
+    return [
+      date.getUTCFullYear(),
+      Utils.padDate(date.getUTCMonth() + 1),
+      Utils.padDate(date.getUTCDate()),
+      Utils.padDate(date.getUTCHours()) + Utils.padDate(date.getUTCMinutes()) + Utils.padDate(date.getUTCSeconds())
+    ].join('-')
+  }
+
+  static getDateFromMigration (fileName) {
+    return fileName.match(/migrations\/(\d{4}-\d{2}-\d{2}-\d{6})/i)[1]
+  }
+
+  static subtractFromMigrationDate (fileName, n) {
+    return fileName.replace(/(\d{4}-\d{2}-\d{2}-)(\d{6})/i, (str, m1, m2) => {
+      return m1 + (Number(m2) - n)
+    })
+  }
+}
+
+class CommandHandler {
+  static create (name, options) {
+    if (!name) {
+      console.error('Please enter a name for the migration')
+      return
+    }
+
+    let migration = new Migration(name)
+    migration.create()
+      .catch(err => {
+        console.error(err.stack)
+      })
+  }
+
+  static upAndDown (file, options) {
+    const direction = (options._name === 'up') ? 1 : -1;
+
+    Database.connect()
+
+    Database.client.getAsync('migration:current')
+      .then(current => {
+        if (!current) {
+          current = '00-00-00-000000'
+        }
+
+        let migration = new Migration()
+
+        if (file) {
+          migration.runFile(file, direction, false)
+            .then(() => {
+              Database.quit()
+            })
+          return
+        }
+
+        glob('migrations/*.js', (err, files) => {
+          if (err) {
+            console.error('Error reading migration files')
+            console.error(err.stack)
+            return Database.quit()
+          }
+
+          let migrationFiles = files.filter(fileName => {
+            let date = Utils.getDateFromMigration(fileName)
+            return direction === 1 ? date > current : date <= current
+          })
+
+          if (direction === -1) {
+            migrationFiles.reverse()
+          }
+
+          let nextMigrationFile = migrationFiles.shift()
+          if (!nextMigrationFile) {
+            console.error('There is no migration possible')
+            return Database.quit()
+          }
+
+          migration.runFile(nextMigrationFile, direction)
+            .then(() => {
+              Database.quit()
+            })
+        })
+      })
+  }
+}
+
+class Migration {
+  async createPathIfNotExists () {
+    return new Promise((resolve, reject) => {
+      fs.stat('migrations', (err, stats) => {
+        if (err && err.code === 'ENOENT') {
+          fs.mkdir('migrations', err => {
+            if (err) {
+              return reject(err)
+            }
+
+            return resolve()
+          })
+        }
+
+        return resolve()
+      })
+    })
+  }
+
+  async fileExists (fileName) {
+    return new Promise((resolve, reject) => {
+      fs.exists(fileName, exists => {
+        if (exists) {
+          return reject()
+        }
+
+        resolve()
+      })
+    })
+  }
+
+  async create (name) {
+    this.formattedDate = Utils.formatDate(new Date())
+    this.fileName = `${this.formattedDate}-${name}`
+
+    if (this.fileName.substr(-3) !== '.js') {
+      this.fileName += '.js'
+    }
+
+    let error = await this.createPathIfNotExists()
+    
+    if (error) {
+      console.error('Could not create migrations folder')
+      return console.error(error.stack)
+    }
+
+    let fileExists = await this.fileExists(this.fileName)
+
+    if (fileExists) {
+      return console.error(`Could not create migration file: ${this.fileName} already exists`)
+    }
+
+    const content = [
+      'exports.up = client => new Promise((resolve, reject) => {})',
+      'exports.down = client => new Promise((resolve, reject) => {})',
+      "\n"
+    ].join("\n")
+
+    fs.writeFile(path.join('migrations', this.fileName), content, err => {
+      if (err) {
+        console.error(`Could not create migration file: migrations/${this.fileName}`)
+        return console.error(err.stack)
+      }
+
+      console.log(`Created migration file: migrations/${this.fileName}`)
+    })
+  }
+
+  async runFile (fileName, direction, saveRunDate = true) {
+    try {
+      let migration = require(path.resolve(fileName))
+      let lastRunDate = Utils.getDateFromMigration(fileName)
+
+      if (direction === -1) {
+        lastRunDate = Utils.subtractFromMigrationDate(lastRunDate, 1)
+      }
+
+      await migration[DIRECTION[direction]](Database.client)
+      console.log(`Ran migration successfully: ${fileName}`)
+
+      if (saveRunDate) {
+        await Database.client.setAsync('migration:current', lastRunDate)
+      }
+    } catch (e) {
+      console.error('Error running migration:')
+      console.error(e.stack)
+    }
+  }
+}
+
+commander
+  .version('0.0.1')
+
+commander
+  .command('create [name]')
+  .alias('c')
+  .description('Create a new migration file')
+  .action(CommandHandler.create)
+
+commander
+  .command('up [file]')
+  .alias('u')
+  .description('Go up a version')
+  .action(CommandHandler.upAndDown)
+
+commander
+  .command('down [file]')
+  .alias('d')
+  .description('Go down a version')
+ .action(CommandHandler.upAndDown)
+
+
+commander.parse(process.argv)
+
+if (!process.argv.slice(2).length) {
+  commander.outputHelp()
+  process.exit(1)
+}
+

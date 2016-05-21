@@ -14,6 +14,14 @@ class Database {
   connect () {
     this.client = redis.createClient(Settings.redis || {})
   }
+
+  quit () {
+    if (!this.client) {
+      return
+    }
+    this.client.quit()
+    this.client = null
+  }
 }
 
 export default new Database
