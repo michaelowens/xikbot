@@ -12,15 +12,13 @@ export default {
                 })
             }
 
-            for (var prop in value) {
-                if (value.hasOwnProperty(prop)) {
-                    try {
-                        value[prop] = JSON.parse(value[prop])
-                    } catch (e) {
-                        value[prop] = {}
-                    }
-                } 
-            }
+            Object.getOwnPropertyNames(value).forEach(prop => {
+                try {
+                    value[prop] = JSON.parse(value[prop])
+                } catch (e) {
+                    value[prop] = {}
+                }
+            })
 
             res.json({
                 error: false,

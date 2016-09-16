@@ -27,6 +27,7 @@ switch (process.argv[2]) {
         isWeb = true
         break
     default:
+        console.error('Please add param with bot/web/both')
         process.exit(0)
         break
 }
